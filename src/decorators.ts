@@ -433,7 +433,7 @@ export const ResponseStatus = (responseStatus: number) => {
 };
 
 /**
- * A direct way to set config for a request in axios.
+ * A direct way to set static config for a request in axios.
  * @param config
  * @sample @Config({ maxRedirects: 1 })
  * @constructor
@@ -443,6 +443,19 @@ export const Config = (config: Partial<AxiosRequestConfig>) => {
     ensureMeta(target, methodName);
     target.__meta__[methodName].config = config;
   };
+};
+
+/**
+ * Set some per request dynamic config for a request in axios.
+ * @param target
+ * @param methodName
+ * @param paramIndex
+ * @sample @RequestConfiguration config: Partial<AxiosRequestConfig>
+ * @constructor
+ */
+export const RequestConfiguration = (target: any, methodName: string, paramIndex: number) => {
+  ensureMeta(target, methodName);
+  target.__meta__[methodName].requestConfigMapIndex = paramIndex;
 };
 
 /**

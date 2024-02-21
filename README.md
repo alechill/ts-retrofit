@@ -5,7 +5,7 @@
 
 | Statements                               | Branches                                 | Functions                                | Lines                               |
 | ---------------------------------------- | ---------------------------------------- | ---------------------------------------- | ----------------------------------- |
-| ![Statements](https://img.shields.io/badge/Coverage-93.98%25-brightgreen.svg "Make me better!") | ![Branches](https://img.shields.io/badge/Coverage-80.14%25-yellow.svg "Make me better!") | ![Functions](https://img.shields.io/badge/Coverage-87.58%25-yellow.svg "Make me better!") | ![Lines](https://img.shields.io/badge/Coverage-95.32%25-brightgreen.svg "Make me better!") |
+| ![Statements](https://img.shields.io/badge/Coverage-94.12%25-brightgreen.svg "Make me better!") | ![Branches](https://img.shields.io/badge/Coverage-80.07%25-yellow.svg "Make me better!") | ![Functions](https://img.shields.io/badge/Coverage-87.75%25-yellow.svg "Make me better!") | ![Lines](https://img.shields.io/badge/Coverage-95.44%25-brightgreen.svg "Make me better!") |
 
 > A declarative and [axios](https://github.com/axios/axios) based retrofit implementation for JavaScript and TypeScript.
 
@@ -596,7 +596,7 @@ class ItemService extends BaseService {
 
 - Position: Method
 
-`Config` decorator provides a direct way to set config for a request in axios.
+`Config` decorator provides a direct way to set static config for a request in axios.
 
 ```typescript
 @BasePath("/api/v1")
@@ -606,6 +606,20 @@ export class ConfigService extends BaseService {
     maxRedirects: 1,
   })
   async getConfig(): Promise<Response> { return <Response>{} };
+}
+```
+
+### RequestConfiguration
+
+- Position: Method Parameter
+
+`RequestConfiguration` decorator provides a way to set dynamic config for a request in axios, merging with anything already declared in static `Config` decorator.
+
+```typescript
+@BasePath("/api/v1")
+export class RequestConfigurationService extends BaseService {
+  @GET("/request-configuration")
+  async getRequestConfiguration(@RequestConfiguration config: Partial<RequestConfig>): Promise<Response> { return <Response>{} };
 }
 ```
 
@@ -687,7 +701,8 @@ class ItemService extends BaseService {
 | ResponseTransformer | @ResponseTransformer |     Specifying the response transformer in axios config      |       Method       | @ResponseTransformer((data: any, headers?: any) => { const json = JSON.parse(data); json.foo = 'foo'; return json; }) |
 |       Timeout       |       @Timeout       |            Specifying the timeout in axios config            |       Method       |                        @Timeout(5000)                        |
 |   ResponseStatus    |   @ResponseStatus    | Declare response status code for method, do nothing just a declaration |       Method       |                     @ResponseStatus(204)                     |
-|       Config        |       @Config        |      A direct way to set config for a request in axios       |       Method       |                 @Config({ maxRedirects: 1 })                 |
+|       Static Config        |       @Config        |      A way to set static config for a request in axios       |       Method       |                 @Config({ maxRedirects: 1 })                 |
+|  Config Parameter   |   @RequestConfiguration  |      A way to set dynamic config for a request in axios      |  Method Parameter  |            @RequestConfiguration({ maxRedirects: 1 })            |
 |       GraphQL       |       @GraphQL       |            Declares query for a GraphQL request.             |       Method       |             @GraphQL(gqlQuery, "operationName")              |
 |  GraphQLVariables   |  @GraphQLVariables   |          Declares variables for a GraphQL request.           |       Method       |                      @GraphQLVariables                       |
 |     Deprecated      |     @Deprecated      |                 Marks a method is deprecated                 |       Method       |  @Deprecated()<br>@Deprecated("This method is deprecated")   |

@@ -125,8 +125,8 @@ export class BaseService {
 
   @nonHTTPRequestMethod
   private async _wrap(methodName: string, args: any[]): Promise<Response> {
-    const { url, method, headers, query, data } = this._resolveParameters(methodName, args);
-    const config = this._makeConfig(methodName, url, method, headers, query, data);
+    const { url, method, headers, query, data, requestConfig } = this._resolveParameters(methodName, args);
+    const config = this._makeConfig(methodName, url, method, headers, query, data, requestConfig);
     let error;
     let response;
     try {
@@ -155,12 +155,20 @@ export class BaseService {
     if (headers["content-type"] && headers["content-type"].indexOf("multipart/form-data") !== -1 && isNode) {
       headers = { ...headers, ...(data as FormData).getHeaders() };
     }
-    return { url, method, headers, query, data };
+    const requestConfig = this._resolveRequestConfig(methodName, args);
+    return { url, method, headers, query, data, requestConfig };
   }
 
   @nonHTTPRequestMethod
-  private _makeConfig(methodName: string, url: string, method: HttpMethod, headers: any, query: any, data: any)
-    : RequestConfig {
+  private _makeConfig(
+    methodName: string,
+    url: string,
+    method: HttpMethod,
+    headers: any,
+    query: any,
+    data: any,
+    requestConfig: Partial<RequestConfig>,
+  ): RequestConfig {
     let config: RequestConfig = {
       url,
       method,
@@ -197,10 +205,11 @@ export class BaseService {
         return qs.stringify(params, { arrayFormat: this.__meta__[methodName].queryArrayFormat});
       };
     }
-    // mix in config set by @Config
+    // mix in config set by @Config and @RequestConfiguration
     config = {
       ...config,
       ...this.__meta__[methodName].config,
+      ...requestConfig,
     };
     return config;
   }
@@ -280,6 +289,21 @@ export class BaseService {
       }
     }
     return query;
+  }
+
+  @nonHTTPRequestMethod
+  private _resolveRequestConfig(methodName: string, args: any[]): Partial<RequestConfig> {
+    const meta = this.__meta__;
+    const requestConfig: Partial<RequestConfig> = {};
+    const requestConfigMapIndex = meta[methodName].requestConfigMapIndex;
+    if (requestConfigMapIndex >= 0) {
+      for (const key in args[requestConfigMapIndex]) {
+        if (args[requestConfigMapIndex][key] !== undefined) {
+          requestConfig[key] = args[requestConfigMapIndex][key];
+        }
+      }
+    }
+    return requestConfig;
   }
 
   @nonHTTPRequestMethod

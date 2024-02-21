@@ -25,6 +25,7 @@ import {
   TimeoutService,
   ResponseStatusService,
   ConfigService,
+  RequestConfigurationService,
   AbsoluteURLService,
   HealthService,
   GraphQLService,
@@ -630,6 +631,40 @@ describe("Test ts-retrofit.", () => {
       .build(ConfigService);
     const response = await service.getConfig();
     expect(response.config.maxRedirects).toEqual(1);
+  });
+
+  test("Test `@RequestConfiguration` decorator.", async () => {
+    const service = new ServiceBuilder()
+      .setEndpoint(TEST_SERVER_ENDPOINT)
+      .build(RequestConfigurationService);
+    const timeoutErrorMessage = 'time is up'
+    const response = await service.getRequestConfiguration({timeoutErrorMessage});
+    expect(response.config.timeoutErrorMessage).toEqual(timeoutErrorMessage);
+  });
+
+  test("Test `@RequestConfiguration` decorator should merge and override static config already set in `@Config` decorator.", async () => {
+    const service = new ServiceBuilder()
+      .setEndpoint(TEST_SERVER_ENDPOINT)
+      .build(RequestConfigurationService);
+    const maxRedirects = 2
+    const timeoutErrorMessage = 'time is up'
+    const response1 = await service.getRequestConfiguration({timeoutErrorMessage});
+    const response2 = await service.getRequestConfiguration({maxRedirects, timeoutErrorMessage});
+    expect(response1.config.maxRedirects).toEqual(1);
+    expect(response1.config.timeoutErrorMessage).toEqual(timeoutErrorMessage);
+    expect(response2.config.maxRedirects).toEqual(maxRedirects);
+    expect(response2.config.timeoutErrorMessage).toEqual(timeoutErrorMessage);
+  });
+
+  test("Test `@RequestConfiguration` decorator should not persist optional config across subsequent requests.", async () => {
+    const service = new ServiceBuilder()
+      .setEndpoint(TEST_SERVER_ENDPOINT)
+      .build(RequestConfigurationService);
+    const timeoutErrorMessage = 'time is up'
+    const response1 = await service.getRequestConfiguration({timeoutErrorMessage});
+    const response2 = await service.getRequestConfiguration({});
+    expect(response1.config.timeoutErrorMessage).toEqual(timeoutErrorMessage);
+    expect(response2.config.timeoutErrorMessage).not.toEqual(timeoutErrorMessage);
   });
 
   test("Test absolute URL.", async () => {

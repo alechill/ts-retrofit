@@ -2,7 +2,7 @@ import {
   GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, BasePath, Header, Queries, Headers, Path, Query, QueryMap, Body,
   FormUrlEncoded, Field, FieldMap, Multipart, ResponseType, Part, PartDescriptor, BaseService, Response, HeaderMap,
   RequestTransformer, ResponseTransformer, Timeout, ResponseStatus, Config, GraphQL, GraphQLVariables, Deprecated,
-  QueryArrayFormat,
+  QueryArrayFormat, RequestConfiguration, type RequestConfig,
 } from "../../src";
 
 export const TEST_SERVER_HOST = "http://localhost";
@@ -261,6 +261,16 @@ export class ConfigService extends BaseService {
   })
   @ResponseStatus(200)
   async getConfig(): Promise<Response> { return <Response>{} };
+}
+
+@BasePath(API_PREFIX)
+export class RequestConfigurationService extends BaseService {
+  @GET("/request-configuration")
+  @Config({
+    maxRedirects: 1,
+  })
+  @ResponseStatus(200)
+  async getRequestConfiguration(@RequestConfiguration requestConfig: Partial<RequestConfig>): Promise<Response> { return <Response>{} };
 }
 
 @BasePath(API_PREFIX)
