@@ -208,6 +208,7 @@ export class InterceptorService extends BaseService {
   async getParams(): Promise<Response> { return <Response>{} };
 
   @POST("/interceptor")
+  @FormUrlEncoded
   async createParams(@Body body: Post): Promise<Response> { return <Response>{} };
   
   @GET("/header")

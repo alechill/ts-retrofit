@@ -1,6 +1,6 @@
 import * as http from "http";
 import * as fs from "fs";
-import axios, { AxiosRequestConfig } from "axios";
+import axios from "axios";
 import { app } from "./fixture/server";
 import { ServiceBuilder, RequestInterceptorFunction, ResponseInterceptorFunction, RequestInterceptor } from "../src";
 import {
@@ -34,7 +34,7 @@ import { HttpContentType } from "../src/constants";
 import { RequestConfig, Response } from "../src";
 
 declare module "axios" {
-  interface AxiosRequestConfig {
+  interface InternalAxiosRequestConfig {
     standaloneId?: string;
   }
 }
@@ -467,7 +467,7 @@ describe("Test ts-retrofit.", () => {
           break;
         case "POST":
         case "post":
-          if (config.headers?.post["Content-Type"] === HttpContentType.urlencoded) {
+          if (config.headers.get("Content-Type")?.toString().includes(HttpContentType.urlencoded)) {
             const data = config.data;
             const body: { [key: string]: string } = {};
             if (typeof data === "string" && data.length) {
@@ -530,13 +530,11 @@ describe("Test ts-retrofit.", () => {
     class AddHeaderInterceptor extends RequestInterceptor {
       public role = "interceptor";
 
-      public onFulfilled(config: AxiosRequestConfig) {
+      public onFulfilled(config: RequestConfig) {
         switch (config.method) {
           case "get":
           case "GET":
-            if (typeof config.headers?.get === "object") {
-              config.headers.get["X-Role"] = this.role;
-            }
+            config.headers.set("X-Role", this.role);
             break;
 
           default:
